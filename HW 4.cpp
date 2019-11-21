@@ -1,0 +1,356 @@
+#include <iostream>
+#include <string>
+#include <algorithm> 
+#include <vector>
+#include <iomanip>
+#define TURN(EIGHT) ((((EIGHT)+1) % 2)+ 1)
+
+using namespace std;
+
+class Board
+{
+private:
+	struct Space
+	{
+		string name;
+		int points;
+		Space *next;
+		Space *prev;
+	};
+	Space *start;
+	Space *player1;
+	Space *player2;
+
+public:
+	Board() // default constructor
+	{
+		start = nullptr;
+		player1 = nullptr;
+		player2 = nullptr;
+	}
+
+	~Board()
+	{
+		Space *pointer = start;
+		if (pointer == nullptr)
+		{
+			return;
+		}
+		else if (pointer->next == pointer)
+		{
+			delete pointer;
+			return;
+		}
+		pointer = start->next;
+		start->next = nullptr;
+		while (pointer != nullptr)
+		{
+			start = pointer->next;
+			delete pointer;
+			pointer = start;
+		}
+	}
+
+	string getSpaceName(int player)
+	{
+		if (player == 1)
+		{
+			if (player1 == nullptr)
+			{
+				return "NONE.";
+			}
+			else
+			{
+				return player1->name;
+			}
+		}
+		else if (player == 2)
+		{
+			if (player2 == nullptr)
+			{
+				return "NONE.";
+			}
+			else
+			{
+				return player2->name;
+			}
+		}
+		else
+		{
+			return "NONE.";
+		}
+	}
+
+	int getSpacePoints(int player)
+	{
+		if (player == 1)
+		{
+			if (player1 == nullptr)
+			{
+				return 0;
+			}
+			else
+			{
+				return player1->points;
+			}
+		}
+		else if (player == 2)
+		{
+			if (player2 == nullptr)
+			{
+				return 0;
+			}
+			else
+			{
+				return player2->points;
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	void addSpace(string name, int points)
+	{
+		Space *current;
+		current = nullptr;
+		Space *newEntry = new Space;
+		newEntry->name = name;
+		newEntry->points = points;
+		newEntry->next = nullptr;
+		newEntry->prev = nullptr;
+		if (start == nullptr) //with no node
+		{
+			start = newEntry;
+			start->next = start;
+			start->prev = start;  // with one node
+		}
+		else if (start->next == start && start->prev == start) // contain one node
+		{
+			start->prev = newEntry;
+			newEntry->next = start;
+			start->next = newEntry;
+			newEntry->prev = start;
+			start = newEntry; // exact two node
+		}
+		else  // two or more node
+		{
+			current = start;
+			while (current->next != start)
+			{
+				current = current->next;
+			}
+
+
+			current->next = newEntry;
+			newEntry->prev = current;
+			newEntry->next = start;
+			start->prev = newEntry;
+			start = newEntry; // move start pointer to the begining of the loop
+		}
+	}
+
+	void move(char direction, int playerNumber, int roll)
+	{
+		Space *player = nullptr;
+
+		if (playerNumber == 1)
+		{
+			player = player1;
+		}
+		else if (playerNumber == 2)
+		{
+			player = player2;
+		}
+		else
+		{
+			return;
+		}
+
+		if (direction == 'F' || direction == 'f')
+		{
+			for (int i = 0; i < roll; i++)
+			{
+				player = player->next;
+			}
+
+		}
+		else if (direction == 'B' || direction == 'b')
+		{
+			for (int i = 0; i < roll; i++)
+			{
+				player = player->prev;
+			}
+		}
+		if (playerNumber == 1)
+		{
+			player1 = player;
+		}
+		else if (playerNumber == 2)
+		{
+			player2 = player;
+		}
+	}
+
+	void reset()
+	{
+		player1 = start;
+		player2 = start;
+	}
+
+	void printBoard()
+	{
+		Space *current = nullptr;
+		/*
+		cout  << "SPACE" << right << setw(16) << "POINTS" << right << setw(10)
+			<< "PLAYER" << endl;
+		*/
+		cout << setfill(' ') << left << setw(16) << "SPACE"
+			<< right << setw(10) << "POINTS"
+			<< '\t' << "PLAYER" << endl;
+
+		if (start == nullptr)
+			return;
+		current = start;
+		cout << left << setw(16) << current->name
+			<< right << setw(10) << current->points
+			<< '\t' << "Player 1, Player 2" << endl;
+		while (current->next != start)
+		{
+			current = current->next;
+			cout << left << setw(16) << current->name
+				<< right << setw(10) << current->points
+				<< endl;
+			//cout << current->name << current->points << endl;
+		}
+	}
+};
+int main()
+{
+	int randNumb;
+	int player1Score;
+	int player2Score;
+	player1Score = 50;
+	player2Score = 50;
+	int turnNumber = 1;
+	int playerNumber = 1;
+	static const string CHOICES = "FBPQ";
+	Board *spaceListPtr = new Board();
+
+	string menuChoiceStr = " ";
+	char menuChoiceChr = ' ';
+
+	spaceListPtr->addSpace("Lambda", -20);
+	spaceListPtr->addSpace("Theta", -6);
+	spaceListPtr->addSpace("Kappa", -10);
+	spaceListPtr->addSpace("Iota", 12);
+	spaceListPtr->addSpace("Eta", 4);
+	spaceListPtr->addSpace("Zeta", 5);
+	spaceListPtr->addSpace("Epsilon", -1);
+	spaceListPtr->addSpace("Delta", 2);
+	spaceListPtr->addSpace("Gama", 7);
+	spaceListPtr->addSpace("Beta", -5);
+	spaceListPtr->addSpace("Alpha", 10);
+	spaceListPtr->addSpace("Start", 20);
+	spaceListPtr->reset();
+
+	while (menuChoiceChr != 'Q')
+	{
+		cout << "Turn #: " << turnNumber << endl;
+		cout << "Player ";
+		if (TURN(turnNumber) == 1)
+		{
+			cout << "one";
+		}
+		else if (TURN(turnNumber) == 2)
+		{
+			cout << "two";
+		}
+		cout << "'s turn." << endl;
+		cout << "Score --> " << "[" << player1Score << ":"
+			<< player2Score << "]" << endl;
+		cout << "Player1 Space: " << spaceListPtr->getSpaceName(1) << endl;
+		cout << "Player2 Space: " << spaceListPtr->getSpaceName(2) << endl;
+
+		cout << "(F)orward, ";
+		cout << "(B)ackward, ";
+		cout << "(P)rint Board, or ";
+		cout << "(Q)uit: ";
+
+		menuChoiceStr = " ";
+		menuChoiceChr = ' ';
+		while (CHOICES.find(menuChoiceChr) == string::npos)
+		{
+			cin >> menuChoiceStr;
+			menuChoiceChr = menuChoiceStr[0];
+			menuChoiceChr = toupper(menuChoiceChr);
+		}
+		switch (menuChoiceChr)
+		{
+		case 'F':
+			randNumb = rand() % 3 + 1; //??
+			cout << setfill('-') << setw(50) << '\n';
+			cout << "Your rolled a " << randNumb << "." << endl;
+
+			spaceListPtr->move('F', TURN(turnNumber), randNumb);
+			if (TURN(turnNumber) == 1)
+			{
+				player1Score += spaceListPtr->getSpacePoints(1);
+				cout << "You landed on: " << spaceListPtr->getSpaceName(1)
+					<< " for " << spaceListPtr->getSpacePoints(1) << " points!" << endl;
+			}
+			else
+			{
+				player2Score += spaceListPtr->getSpacePoints(2);
+				cout << "You landed on: " << spaceListPtr->getSpaceName(2)
+					<< " for " << spaceListPtr->getSpacePoints(2) << " points!" << endl;
+			}
+			turnNumber++;
+			cout << setfill('-') << setw(50) << '\n';
+			break;
+		case 'B':
+			randNumb = rand() % 3 + 1;
+			cout << setfill('-') << setw(50) << '\n';
+			cout << "Your rolled a " << randNumb << "." << endl;
+
+			spaceListPtr->move('B', TURN(turnNumber), randNumb);
+			if (TURN(turnNumber) == 1)
+			{
+				player1Score += spaceListPtr->getSpacePoints(1);
+				cout << "You landed on: " << spaceListPtr->getSpaceName(1)
+					<< " for " << spaceListPtr->getSpacePoints(1) << " points!" << endl;
+			}
+			else
+			{
+				player2Score += spaceListPtr->getSpacePoints(2);
+				cout << "You landed on: " << spaceListPtr->getSpaceName(2)
+					<< " for " << spaceListPtr->getSpacePoints(2) << " points!" << endl;
+			}
+			turnNumber++;
+			cout << setfill('-') << setw(50) << '\n';
+			break;
+		case 'P':
+			spaceListPtr->printBoard();
+			break;
+
+		case 'Q':
+			break;
+
+		default:
+			break;
+		}
+		if (player1Score <= 0 || player1Score >= 200 || player2Score <= 0 || player2Score >= 200)
+		{
+			cout << "Game Over!" << endl;
+			cout << "Final Score:" << endl;
+			cout << "Player One: " << player1Score << endl;
+			cout << "Player Two: " << player2Score << endl;
+			cout << "Total Turns: " << turnNumber << endl;
+			system("pause");
+			break;
+		}
+	}
+	delete spaceListPtr;
+	return 0;
+}
