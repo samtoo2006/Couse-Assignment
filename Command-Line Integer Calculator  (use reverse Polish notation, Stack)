@@ -12,7 +12,13 @@ The calculator will continuously read input until ! is entered.  It can read any
 If there aren't enough integers in the stack to perform a calculation, "#Not enough arguments." should be displayed. 
 If anything other than integers or the supported operations is entered, the error message "#Invalid input." should be displayed,
 without interrupting the rest of the operations for a particular line of input.
-*/
+example: 
+100 250
+* ?
+[25000]
+^
+25000
+*/ 
 #include <iostream>
 #include <string>
 #include <vector>
