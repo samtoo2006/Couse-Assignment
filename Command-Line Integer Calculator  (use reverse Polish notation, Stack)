@@ -1,3 +1,18 @@
+/*
+The calculator support the following operations:
++ : addition
+- : subtraction
+* : multiplication
+/ : division
+% : modulus
+? : print the current contents of the stack to the screen using the toString() method.
+^ : pops the top of the stack and displays only the value popped.
+! : quits the calculator.
+The calculator will continuously read input until ! is entered.  It can read any number of tokens as input (see below). 
+If there aren't enough integers in the stack to perform a calculation, "#Not enough arguments." should be displayed. 
+If anything other than integers or the supported operations is entered, the error message "#Invalid input." should be displayed,
+without interrupting the rest of the operations for a particular line of input.
+*/
 #include <iostream>
 #include <string>
 #include <vector>
