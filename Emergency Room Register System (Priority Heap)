@@ -1,3 +1,14 @@
+/*
+This is a program that is used to keep track of the patients in an emergency room for a hospital.
+Each patient will be classified as high priority, medium priority, and low priority. 
+The high priority patients go first.  Once they are all helped, the medium priority patients come next,
+followed by the low priority patients.
+The program use a priority queue implemented as a maximal heap. 
+Each node in the heap will contain patient's name, description of injury, and the priority level. 
+The heap will be organized based on the priority.  
+Notice, there will be nodes with duplicate priorities, but it shouldn't require any extra work
+or modification of algorithms covered in class.
+*/
 #include <iostream>
 #include <utility> 
 #include<string>
