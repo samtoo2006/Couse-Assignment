@@ -8,6 +8,16 @@ Each node in the heap will contain patient's name, description of injury, and th
 The heap will be organized based on the priority.  
 Notice, there will be nodes with duplicate priorities, but it shouldn't require any extra work
 or modification of algorithms covered in class.
+Features:
+(A)dd Patient
+(N)ext Patient
+(Q)uit
+
+Patient Info include:
+Name
+complaint
+priority
+
 */
 #include <iostream>
 #include <utility> 
