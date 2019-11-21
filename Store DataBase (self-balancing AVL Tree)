@@ -3,9 +3,12 @@ THis program is a "parts database". Doing lookups on this database will be the m
 since customers will want to know if something is in stock or how much something costs as quickly as possible.  
 
 The program is menu driven, with the following options:
-(A)dd a part to the database - provides an interface for adding new parts to a database.  Parts have a description, a part id number,  a price, and a quantity on hand.
+(A)dd a part to the database - provides an interface for adding new parts to a database. 
+   Parts have a description, a part id number,  a price, and a quantity on hand.
 (R)emove a part from the database - provides an interface for removing a part from the inventory database.
-(S)earch for a part in the database - searches the database for a specific part.  The search is done by id number, meaning the id number is used for the search key.  If found, the part's description, price, and quantity on hand is displayed.  If not, an appropriate message is displayed.
+(S)earch for a part in the database - searches the database for a specific part.  The search is done by id number,
+   meaning the id number is used for the search key.  If found, the part's description, price, and quantity on hand is displayed.
+   If not, an appropriate message is displayed.
 (O)ut of stock - displays a list of all parts in the database with a quantity of 0.
 (Q)uit - terminates the program.
 */
