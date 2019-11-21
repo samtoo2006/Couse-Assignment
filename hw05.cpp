@@ -1,0 +1,439 @@
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<iomanip>
+#include <vector>
+
+using namespace std;
+
+class AVLTree
+{
+private:
+	struct Node
+	{
+		int partnum;  //partnum, describ, price, qty
+		int qty;
+		string description;
+		double price;
+		Node* left, *right;
+		void operator= (Node*& n)
+		{
+			this->partnum = n->partnum;
+			this->description = n->description;
+			this->price = n->price;
+			this->qty = n->qty;
+
+		}
+	} *root;
+
+	void add(Node*&, int, int, string, double price);
+	void remove(Node*&, int);
+	bool find(Node*, int, int, string, double) const;
+	void print(Node*) const;
+	void clear(Node*&);
+	int height(Node*& r);
+	int difference(Node*& r);
+	void rotateLeft(Node*& r);
+	void rotateRight(Node*& r);
+	void rotateLeftRight(Node*& r);
+	void rotateRightLeft(Node*& r);
+	int balance(Node*& r);
+	string getPart(Node*&r, int partnum);
+	string getOutOfStock(Node*&r);
+
+public:
+	AVLTree();
+	~AVLTree();
+	void add(int, int, string, double);
+	void remove(int);
+	bool find(int, int, string, double) const;
+	void print() const;
+	void clear();
+	int balance();
+	string getPart(int partnum);
+	string getOutOfStock();
+};
+
+AVLTree::AVLTree()
+{
+	root = nullptr;
+}
+
+AVLTree::~AVLTree()
+{
+	clear(root);
+}
+
+void AVLTree::add(int partnum, int qty, string description, double price)
+{
+	add(root, partnum, qty, description, price);
+}
+
+void AVLTree::add(Node*& r, int partnum, int qty, string description, double price)
+{
+	if (r == nullptr) //partnum, describ, price, qty
+	{
+		r = new Node{ partnum, qty, description, price };
+		r->left = r->right = nullptr;
+	}
+	else if (partnum < r->partnum)
+	{
+		add(r->left, partnum, qty, description, price);
+	}
+	else
+	{
+		add(r->right, partnum, qty, description, price);
+	}
+	balance(r);
+}
+
+void AVLTree::remove(int partnum)
+{
+	remove(root, partnum);
+}
+
+void AVLTree::remove(Node*& r, int partnum)
+{
+	if (r == nullptr)
+		return;
+	else if (partnum < r->partnum)
+		remove(r->left, partnum);
+	else if (partnum > r->partnum)
+		remove(r->right, partnum);
+	else
+	{
+		Node* p;
+
+		if (r->left == nullptr && r->right == nullptr)		// no descriptionids
+		{
+			delete r;
+			r = nullptr;
+		}
+		else if (r->left != nullptr && r->right == nullptr)	// left descriptionid 
+		{
+			p = r;
+			r = r->left;
+			delete p;
+		}
+		else if (r->left == nullptr && r->right != nullptr)	// right descriptionid 
+		{
+			p = r;
+			r = r->right;
+			delete p;
+		}
+		else												// two descriptionids  
+		{
+			p = r->right;
+
+			while (p->left)
+				p = p->left;
+
+			p->left = r->left;
+			p = r;
+			r = r->right;
+
+			delete p;
+		}
+	}
+}
+
+bool AVLTree::find(int partnum, int qty, string description, double price) const
+{
+	return find(root, partnum, qty, description, price);
+}
+
+bool AVLTree::find(Node* r, int partnum, int qty, string description, double price) const
+{
+	if (r == nullptr)
+		return false;
+	else if (r->partnum == partnum)
+		return true;
+	else if (partnum < r->partnum)
+		return find(r->left, partnum, qty, description, price);
+	else
+		return find(r->right, partnum, qty, description, price);
+}
+
+void AVLTree::print() const         /////////// print
+{
+	print(root);
+}
+
+void AVLTree::print(Node* r) const  /////////// print
+{
+	if (r != nullptr)
+	{
+		print(r->left);
+		cout << "{" << r->partnum << ", " << r->qty << ", " << fixed << setprecision(2) << r->description << ", " << r->price << "}" << " ";
+		print(r->right);
+	}
+}
+
+void AVLTree::clear()
+{
+	clear(root);
+	root = nullptr;
+}
+
+void AVLTree::clear(Node*& r)
+{
+	if (r != nullptr)
+	{
+		clear(r->left);
+		clear(r->right);
+		delete r;
+	}
+}
+
+int AVLTree::height(Node*& r)     /////// height
+{
+	int LH;
+	int RH;
+	if (r == nullptr)
+	{
+		return 0;
+	}
+	LH = height(r->left);
+	RH = height(r->right);
+	if (LH > RH)
+	{
+		return (1 + LH);
+	}
+	else
+	{
+		return (1 + RH);
+	}
+}
+int AVLTree::difference(Node*& r)      /////////// diff
+{
+	int diff;
+	diff = height(r->left) - height(r->right);
+	return diff;
+}
+
+void AVLTree::rotateRight(Node*& r)
+{
+	Node* p = nullptr;
+	p = r->left;
+	r->left = p->right;
+	p->right = r;
+	r = p;
+}
+
+void AVLTree::rotateLeft(Node*& r)
+{
+	Node* p = nullptr;
+	p = r->right;
+	r->right = p->left;
+	p->left = r;
+	r = p;
+}
+
+void AVLTree::rotateLeftRight(Node*& r)
+{
+	rotateLeft(r->left);
+	rotateRight(r);
+}
+
+void AVLTree::rotateRightLeft(Node*& r)
+{
+	rotateRight(r->right);
+	rotateLeft(r);
+}
+
+int  AVLTree::balance()  //////////////////////// balance
+{
+	balance(root);
+	return 0;
+}
+
+int AVLTree::balance(Node*&r)  ////////////////// balance
+{
+	if (difference(r) == -2)
+	{
+		if (difference(r->right) == -1)
+		{
+			rotateLeft(r);
+		}
+		else
+		{
+			rotateRightLeft(r);
+		}
+	}
+	else if (difference(r) == 2)
+	{
+		if (difference(r->left) == 1)
+		{
+			rotateRight(r);
+		}
+		else
+		{
+			rotateLeftRight(r);
+		}
+	}
+	return 0;
+}
+
+string AVLTree::getOutOfStock()
+{
+	return getOutOfStock(root);
+
+}
+
+string AVLTree::getOutOfStock(Node*&r)
+{
+	string list = "";
+	stringstream ss;
+	string tempStr;
+	int counter;
+	if (r != nullptr)
+	{ 
+		list = getOutOfStock(r->left);
+		
+		if (r->qty == 0)
+		{
+			ss << r->partnum << " ";
+			ss << fixed << setprecision(2) << r->price << " ";
+			ss << r->qty;
+			ss >> tempStr;
+			list += "  " + tempStr + ", ";
+			list += r->description + ", ";
+			ss >> tempStr;
+			list += tempStr + ", ";
+			ss >> tempStr;
+			list += tempStr + "\n";
+			//list += " " + to_string (r->partnum) + ", " + r->description + ", " + to_string(r->price) + ", " + to_string(r->qty) + "\n";
+			//cout << " " << r->partnum << ", " << r->description << ", " << fixed << setprecision(2) << r->price << ", " << r->qty << "\n";
+		}
+		list += getOutOfStock(r->right);
+		
+		
+	}
+	return list;
+}
+
+string AVLTree::getPart(Node*&r,int partnum)
+{
+	string list = "";
+	stringstream ss;
+	string tempStr;
+	int counter;
+	if (r != nullptr)
+	{
+		list = getPart(r->left, partnum);
+		if (r->partnum == partnum)
+		{
+			ss << r->partnum << " ";
+			ss << fixed << setprecision(2) << r->price << " ";
+			ss << r->qty;
+			//counter = 0;
+			ss >> tempStr;
+			list += "  " + tempStr + "\n";
+			list += "  " + r->description + "\n";
+			ss >> tempStr;
+			list += "  " + tempStr + "\n";
+			ss >> tempStr;
+			list += "  " + tempStr + "\n";
+			/*
+			while (ss.good())
+			{
+				tempStr = "";
+				ss >> tempStr;
+				if (counter < 3)
+				{
+					list += "  " + tempStr +"\n";
+				}
+				else
+				{
+					list += "  " + tempStr;
+				}
+				counter++;
+			}
+			*/
+			//list += " " + to_string (r->partnum) + ", " + r->description + ", " + to_string(r->price) + ", " + to_string(r->qty) + "\n";
+			//cout << " " << r->partnum << ", " << r->description << ", " << fixed << setprecision(2) << r->price << ", " << r->qty << "\n";
+		}
+		list += getPart(r->right, partnum);
+	}
+	return list;
+}
+
+string AVLTree::getPart(int partnum)
+{
+	string result;
+	result = getPart(root, partnum);
+	if (result.empty())
+	{
+		return "  OUT OF STOCK";
+	}
+	return result;
+}
+
+
+int main()
+{
+	static const string CHOICES = "ARSOQ";
+	AVLTree* menuListPtr = new AVLTree();
+
+	string menuChoiceStr = " ";
+	char menuChoiceChr = ' ';
+	//int inputPartNum, inputQty, string description, double price
+	string inputPartNum, inputDesc, inputPrice, inputQty;
+	
+	while (menuChoiceChr != 'Q') 
+	{	
+		cout << "MENU" << endl;
+		cout << "  (A)dd a Part" << endl;
+		cout << "  (R)emove a Part" << endl;
+		cout << "  (S)earch for a Part" << endl;
+		cout << "  (O)ut of Stock" << endl;
+		cout << "  (Q)uit" << endl;
+
+		menuChoiceStr = " ";
+		menuChoiceChr = ' ';
+		while (CHOICES.find(menuChoiceChr) == string::npos)
+		{
+			cout << "[Enter your choice] >> ";
+			getline(cin, menuChoiceStr);
+			menuChoiceChr = menuChoiceStr[0];
+			menuChoiceChr = toupper(menuChoiceChr);
+		}
+		switch (menuChoiceChr) 
+		{
+		case 'A':                        ////////////// Add
+			cout << "  Enter part description: ";
+			getline(cin, inputDesc);
+			cout << "  Enter the price: ";
+			getline(cin, inputPrice);
+			cout << "  Enter the part number: ";
+			getline(cin, inputPartNum);
+			cout << "  Enter the quantity on hand: ";
+			getline(cin, inputQty);
+			menuListPtr->add(stoi(inputPartNum), stoi(inputQty), inputDesc, stod(inputPrice));
+			break;
+
+		case 'R':                      //////////////// Remove
+			cout << "  Enter part number for part to remove: ";
+			getline(cin, inputPartNum);
+			menuListPtr->remove(stoi(inputPartNum));
+			break;
+
+		case 'S':                       //////////////// Search
+			cout << "  Enter part number to search for: ";
+			getline(cin, inputPartNum);
+			cout << menuListPtr->getPart(stoi(inputPartNum)) << endl;
+			break;
+
+		case 'O':                       //////////////// Out of Stock
+			cout << "  Enter following items are out of stock: " << endl;
+			cout << menuListPtr->getOutOfStock() << endl;
+			break;
+
+		case 'Q':                      ////////////////  Quit
+			break;
+
+		default:
+			break;
+		}
+	}
+}
