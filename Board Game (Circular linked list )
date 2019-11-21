@@ -1,3 +1,21 @@
+/*
+Game rules:
+	Each player will go in turn, and will need to roll a die so they can move from 1 to 3 spaces,
+either forwards or backwards.  When landing on the space, the player will either collect or 
+lose a number of points for that space. Each player starts with 50 points.  
+	There is 12 spaces.  Each space will have a name you can decide on and an amount of
+points to either award the player or deduct from the player.
+The sequence of play goes like this:
+	Player one rolls the die.
+	The player moves either forwards or backwards.
+	The player is told what space they landed on and the amount of points received or deducted.
+	Repeat the above for player two.
+Play alternates until one of the players has 0 or fewer points or one has 200 or more points. 
+In addition, the player will be able to choose to print the board (which shows the space name,
+its points, and who is on it) or quit.
+
+When the game is over, the total number of turns and scores should be displayed.
+*/
 #include <iostream>
 #include <string>
 #include <algorithm> 
